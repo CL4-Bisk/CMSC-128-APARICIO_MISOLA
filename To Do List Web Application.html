@@ -1,0 +1,47 @@
+<html>
+<head>
+    <title>Lab1</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script type="module" src="script.js"></script>
+    <script type="module" src="firebase.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Welcome to My Website</h1>
+    </header>
+    <div class="container">
+        <h2>To Do List</h2>
+        <button id="add-task-btn">Add Task</button>
+        <button id="cancel" style="display: none;">Cancel</button>
+        <div id="task-forms" style="display: none;">
+            <form id="todo-form">
+                <input type="text" id="task-input" placeholder="Enter a new task" required/>
+                <label for="due-date">Due Date:</label>
+                <input type="datetime-local" id="due-date" required/>
+                <button type="submit" id="submit">Confirm</button>
+            </form>
+        </div>
+        <ul id="task-list">
+            <!-- Tasks will be added here dynamically -->
+        </ul>
+    </div>
+    <footer>
+        <p>&copy; To Do List Web Application</p>
+    </footer>
+</html>
+
+
+
+
+<!-- <div class="container">
+    <h2>To Do List</h2>
+    <form id="todo-form">
+        <input type="text" id="task-input" placeholder="Enter a new task" required/>
+        <label for="due-date">Due Date:</label>
+        <input type="datetime-local"
+                id="due-date"required/>
+        <button type="submit">Add Task</button>
+    </form>
+    <ul id="task-list"></ul>
+</div> -->
