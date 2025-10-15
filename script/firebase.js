@@ -49,7 +49,7 @@ import {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-// === Firestore helper functions ===
+// === Firestore task helper functions ===
 export async function addTaskToDB(task, dueDate, createdAt) {
   const docRef = await addDoc(collection(db, "tasks"), { task, dueDate, createdAt });
   return docRef.id;
@@ -66,4 +66,21 @@ export async function updateTaskInDB(id, newTask, newDueDate) {
 
 export async function deleteTaskFromDB(id) {
   await deleteDoc(doc(db, "tasks", id));
+}
+
+
+
+// === Firestore account helper functions ===
+export async function addAccToDB(username, name, email, password, securityQuestion, securityAnswer) {
+  const docRef = await addDoc(collection(db, "account"), { username, name, email, password, securityQuestion, securityAnswer });
+  return docRef.id;
+}
+
+export async function getAccFromDB() {
+  const snapshot = await getDocs(collection(db, "account"));
+  return snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+}
+
+export async function updateAccInDB(id, newUsername, newPassword, newName) {
+  await updateDoc(doc(db, "account", id), { username: newUsername, password: newPassword, name: newName });
 }
