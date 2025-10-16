@@ -13,8 +13,8 @@
             <div id="login-container" style="display: block;">
                 <h2>Login</h2>
                 <form id="login-form">
-                    <input type="text" id="email-login" placeholder="Email">
-                    <input type="password" id="password-login" placeholder="Password">
+                    <input type="text" id="email-login" placeholder="Email" required>
+                    <input type="password" id="password-login" placeholder="Password" required>
                     <button id="login-acc-btn">Login</button>
                     <div id="forget-password">
                         <a id="forget-password-btn" href="">Forget password</a>
@@ -34,18 +34,18 @@
             <div id="register-container" style="display: none;">
                 <h2>Register</h2>
                 <form id="register-form">
-                    <input type="name" id="nickname-register" placeholder="Nickname">
-                    <input type="username" id="username-register" placeholder="Username">
-                    <input type="text" id="email-register" placeholder="Email">
-                    <input type="password" id="password-register" placeholder="Password">
-                    <input type="password" id="confirm-password" placeholder="Confirm Password">
+                    <input type="name" id="nickname-register" placeholder="Nickname" required>
+                    <input type="username" id="username-register" placeholder="Username" required>
+                    <input type="text" id="email-register" placeholder="Email" required>
+                    <input type="password" id="password-register" placeholder="Password" required>
+                    <input type="password" id="confirm-password" placeholder="Confirm Password" required>
                     <label for="security-question-register">Choose a security question:</label>
                     <select id="security-question-register" name="selectedOption">
                     <option value="option1">What is the name of your first pet?</option>
                     <option value="option2">What's the name of your first teacher?</option>
                     <option value="option3">What is your mother's maiden name?</option>
                     </select>
-                    <input type="text" id="security-answer-register" placeholder="Answer">
+                    <input type="text" id="security-answer-register" placeholder="Answer" required>
                     <button id="create-acc-btn">Register</button>
                     <div id="login-message">
                         <p>Already have an account?<a id="switch-login-btn" href="#">Log in here!</a></p>
@@ -53,9 +53,9 @@
                 </form>
             </div>
         </div>
-        <div id="account-profile-container">
+        <div id="account-profile-container" style="display: none;">
             
-            <div id="profile-container" style="display: none;">
+            <div id="profile-container" style="display: block;">
                 <h2>Profile Page</h2>
 
                 <ul id="profile-list">
@@ -75,11 +75,11 @@
             <div id="edit-profile-container" style="display: none;">
                 <h2>Edit Profile Information</h2>
                 <form id= "edit-profile-form">
-                    <input type="name" id="nickname-edit" placeholder="Nickname">
-                    <input type="username" id="username-edit" placeholder="Username">
+                    <input type="name" id="nickname-edit" placeholder="Nickname" required>
+                    <input type="username" id="username-edit" placeholder="Username" required>
                     <!-- <input type="email" id="email-edit" placeholder="Email"> -->
-                    <input type="password" id="password-edit" placeholder="Password">
-                    <input type="password" id="confirm-password-edit" placeholder="Confirm Password">
+                    <input type="password" id="password-edit" placeholder="Password" required>
+                    <input type="password" id="confirm-password-edit" placeholder="Confirm Password" required>
                     <!-- <label for="security-question">Choose a security question:</label>
                     <select id="security-question" name="selectedOption">
                     <option value="option1">What is the name of your first pet?</option>

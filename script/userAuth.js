@@ -27,11 +27,11 @@ const registerForm = document.getElementById('register-form')
 
 const loginContainer = document.getElementById('login-container');
 const loginForm = document.getElementById('login-form')
-const profileContainer = document.getElementById('profile-container');
+const profileContainer = document.getElementById('account-profile-container');
 const editProfileContainer = document.getElementById('edit-profile-container');
 const editProfileForm = document.getElementById('edit-profile-form')
 let accounts = await getAccFromDB();
-let currAccount; 
+let currAccount;
 
 switchToRegisterBtn.addEventListener('click', e => {
   e.preventDefault();
@@ -54,27 +54,53 @@ createAccBtn.addEventListener('click', async e => {
   const securityQuestion = document.getElementById('security-question-register').value;
   const securityAnswer = document.getElementById('security-answer-register').value;
   
-  const id = await addAccToDB(username, name, email, password, securityQuestion, securityAnswer);
+  for (const acc of accounts) {
+    if (acc.username === username) {
+      alert("Username already taken.");
+      return; // properly stops here
+    } else if (acc.email === email) {
+      alert("Email already registered.");
+      return;
+    }
+  }
   
-  registerForm.reset()
-  let accountUsername = accounts.find(account => account.id == id).username
-  alert(`Account for ${accountUsername} is successfully created!`);
+    // If we reach this point, no duplicates found
+    const id = await addAccToDB(username, name, email, password, securityQuestion, securityAnswer);
+    alert(`Account created!`);
+
+    registerForm.reset();
 });
 
 loginAccBtn.addEventListener('click', async e => {
   e.preventDefault();
 
-  const userNameAcc = document.getElementById('username-login').value;
+  const emailUsernameAcc = document.getElementById('email-login').value;
   const passwordAcc = document.getElementById('password-login').value;
   let found = false;
-  accounts.forEach(acc => {
-      if (acc.username === userNameAcc && acc.password === passwordAcc) {
-          found = true;
-          alert(`Welcome back, ${acc.name}!`);
-      } else {
-          alert("account not found.");
-      }
-  });
+
+  for (const acc of accounts) {
+    if ((acc.username === emailUsernameAcc || acc.email === emailUsernameAcc) && acc.password === passwordAcc) {
+      found = true;
+      break; // Exit loop if a match is found
+    }
+  }
+
+  if (found) {
+    loginContainer.style.display = 'none';
+    profileContainer.style.display = 'block';
+    sessionStorage.setItem('loggedInUser', emailUsernameAcc);
+    currAccount = accounts.find(account => account.username === emailUsernameAcc || account.email === emailUsernameAcc);
+    const profileList = document.getElementById('profile-list');
+    profileList.innerHTML = `
+      <li><strong>Nickname:</strong> ${currAccount.name}</li>
+      <li><strong>Username:</strong> ${currAccount.username}</li>
+      <li><strong>Email:</strong> ${currAccount.email}</li>
+    `;
+  } else {
+    alert("Invalid username or password. Please try again.");
+  }
+
+  loginForm.reset();
 });
 
 forgetPassBtn.addEventListener('click', async e =>{
@@ -138,7 +164,7 @@ showForgetPassBtn.addEventListener('click' , e => {
 
 changeInfoBtn.addEventListener('click', e => {
   e.preventDefault();
-  profileContainer.style.display = "none"
+
   editProfileContainer.style.display = "block"
 
   const nameEdit = document.getElementById('nickname-edit')
@@ -146,15 +172,23 @@ changeInfoBtn.addEventListener('click', e => {
   const passwordEdit = document.getElementById('password-edit')
   const confirmPasswordEdit = document.getElementById('confirm-password-edit')
 
-  nameEdit.value = currAccount.name
-  userNameEdit.value = currAccount.username
-  passwordEdit.value = currAccount.password
-  confirmPasswordEdit.value = currAccount.password
+  if (currAccount) {
+    nameEdit.value = currAccount.name
+    userNameEdit.value = currAccount.username
+    passwordEdit.value = currAccount.password
+    confirmPasswordEdit.value = currAccount.password
+  } else {
+    // Handle the case where currAccount is undefined, perhaps log an error or show a message
+    console.error("currAccount is undefined. Cannot load profile data for editing.");
+  }
 });
 
 logOutProfileBtn.addEventListener('click', e => {
   e.preventDefault();
 
+  profileContainer.style.display = 'none';
+  loginContainer.style.display = 'block';
+  loginForm.reset();
 });
 
 updateInfoBtn.addEventListener('click', async e => {
@@ -174,6 +208,15 @@ updateInfoBtn.addEventListener('click', async e => {
     alert("Account Successfully Updated")
     backProfileBtn.click()
   }
+
+    // sessionStorage.setItem('loggedInUser', userNameEdit.value);
+    // currAccount = accounts.find(account => account.username === userNameEdit.value);
+    // const profileList = document.getElementById('profile-list');
+    // profileList.innerHTML = `
+    //   <li><strong>Nickname:</strong> ${currAccount.name}</li>
+    //   <li><strong>Username:</strong> ${currAccount.username}</li>
+    //   <li><strong>Email:</strong> ${currAccount.email}</li>
+    // `;
 });
 
 backProfileBtn.addEventListener('click', e => {
