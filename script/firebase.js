@@ -1,53 +1,27 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import { 
-  getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc 
+  getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-// import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-
-// paste API code below
-
-
-// const auth = getAuth();
-// createUserWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed up 
-//     const user = userCredential.user;
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     // ..
-//   });
+import { 
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
+  onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential,
+  EmailAuthProvider
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
 
-// signInWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed in 
-//     const user = userCredential.user;
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//   });
+// Firebase configuration
+const response = await fetch('./script/firebaseConfig.json');
+const firebaseConfig = await response.json();
 
 
-// onAuthStateChanged(auth, (user) => {
-//   if (user) {
-//     // User is signed in, see docs for a list of available properties
-//     // https://firebase.google.com/docs/reference/js/auth.user
-//     const uid = user.uid;
-//     // ...
-//   } else {
-//     // User is signed out
-//     // ...
-//   }
-// });
-
-
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 export const db = getFirestore(app);
+export function getCurrentUser() {
+  return auth.currentUser;
+}
+
 
 // === Firestore task helper functions ===
 export async function addTaskToDB(task, dueDate, createdAt) {
@@ -71,16 +45,76 @@ export async function deleteTaskFromDB(id) {
 
 
 // === Firestore account helper functions ===
-export async function addAccToDB(username, name, email, password, securityQuestion, securityAnswer) {
-  const docRef = await addDoc(collection(db, "account"), { username, name, email, password, securityQuestion, securityAnswer });
-  return docRef.id;
+export async function signUp(email, password) {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error("Error signing up:", error);
+    throw error;
+  }
 }
 
-export async function getAccFromDB() {
-  const snapshot = await getDocs(collection(db, "account"));
-  return snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+export async function logIn(email, password) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error("Error logging in:", error);
+    throw error;
+  }
 }
 
-export async function updateAccInDB(id, newUsername, newPassword, newName) {
-  await updateDoc(doc(db, "account", id), { username: newUsername, password: newPassword, name: newName });
+export async function logOut() {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Error logging out:", error);
+    throw error;
+  }
+}
+
+export function onAuthStateChangedListener(callback) {
+  return onAuthStateChanged(auth, callback);
+}
+
+export async function updateUserProfile(updates) {
+  if (auth.currentUser) {
+    try {
+      await updateProfile(auth.currentUser, updates);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw error;
+    }
+  } else {
+    throw new Error("No user is currently signed in.");
+  }
+}
+
+export async function saveUserDataToDB(uid, data) {
+  try {
+    await setDoc(doc(db, "users", uid), data);
+    return { uid, ...data };
+  } catch (error) {
+    console.error("Error saving user data:", error);
+    throw error;
+  }
+}
+
+export async function updateUserPassword(newPassword, currentPassword) { // Added currentPassword parameter
+  if (auth.currentUser) {
+    try {
+      // Re-authenticate the user
+      const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword); // Assuming email/password login
+      await reauthenticateWithCredential(auth.currentUser, credential);
+
+      // Update the password after successful re-authentication
+      await updatePassword(auth.currentUser, newPassword);
+    } catch (error) {
+      console.error("Error updating password:", error);
+      throw error;
+    }
+  } else {
+    throw new Error("No user is currently signed in.");
+  }
 }

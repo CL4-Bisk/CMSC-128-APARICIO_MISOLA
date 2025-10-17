@@ -1,30 +1,26 @@
 <html>
     <head>
         <title>Firebase Test</title>
-        <!-- <link rel="stylesheet" type="text/css" href="./css/styles.css"> -->
+        <!-- <link rel="stylesheet" type="text/css" href="./css/account.css"> -->
+        <script type="module" src="./script/firebase.js"></script>
+        <script type="module" src="./script/userAuth.js"></script>
     </head>
-
-    <script type="module" src="./script/firebase.js"></script>
-    <script type="module" src="./script/userAuth.js"></script>
-
     <body>
-        <h1>Welcome, User!</h1>
+        <h1 id="welcome"></h1>
         <div id="account-auth-container" style="display: block;">
             <div id="login-container" style="display: block;">
                 <h2>Login</h2>
                 <form id="login-form">
-                    <input type="text" id="email-login" placeholder="Email">
-                    <input type="password" id="password-login" placeholder="Password">
+                    <input type="text" id="email-login" placeholder="Email" required>
+                    <input type="password" id="password-login" placeholder="Password" required>
                     <button id="login-acc-btn">Login</button>
                     <div id="forget-password">
                         <a id="forget-password-btn" href="">Forget password</a>
                     </div>
                     <div id="forget-password-container" style="display: none;">
                         <!-- <input type="email" id="email" placeholder="Email"> -->
-                         <p id="show-password"></p>
-                        <input type="text" id="security-answer-login", placeholder = >
-                        <a id="show-forget-password-btn" href="">Show Password</a> <!-- Very bad design, should change pass instead -->
-                        <a id="hide-forget-password-btn" href="">Hide</a>
+                        <input type="text" id="security-question-login">
+                        <input type="text" id="security-answer-login">
                     </div>
                 </form>
                 <div id="register-message">
@@ -34,7 +30,7 @@
             <div id="register-container" style="display: none;">
                 <h2>Register</h2>
                 <form id="register-form">
-                    <input type="name" id="nickname-register" placeholder="Nickname">
+                    <input type="name" id="name-register" placeholder="Name">
                     <input type="username" id="username-register" placeholder="Username">
                     <input type="text" id="email-register" placeholder="Email">
                     <input type="password" id="password-register" placeholder="Password">
@@ -45,17 +41,16 @@
                     <option value="option2">What's the name of your first teacher?</option>
                     <option value="option3">What is your mother's maiden name?</option>
                     </select>
-                    <input type="text" id="security-answer-register" placeholder="Answer">
+                    <input type="text" id="security-answer-register" placeholder="Answer" required>
                     <button id="create-acc-btn">Register</button>
                     <div id="login-message">
-                        <p>Already have an account?<a id="switch-login-btn" href="#">Log in here!</a></p>
+                        <p>Already have an account?<a id="switch-login-btn" href="">Log in here!</a></p>
                     </div>
                 </form>
             </div>
         </div>
-        <div id="account-profile-container">
-            
-            <div id="profile-container" style="display: none;">
+        <div id="account-profile-container" style="display: none;">
+            <div id="profile-container" style="display: block;">
                 <h2>Profile Page</h2>
 
                 <ul id="profile-list">
@@ -71,13 +66,12 @@
                 </div>
 
             </div>
-            <!-- Displayed Temporarily -->
+
             <div id="edit-profile-container" style="display: none;">
                 <h2>Edit Profile Information</h2>
                 <form id= "edit-profile-form">
-                    <input type="name" id="nickname-edit" placeholder="Nickname">
+                    <input type="name" id="name-edit" placeholder="Name">
                     <input type="username" id="username-edit" placeholder="Username">
-                    <!-- <input type="email" id="email-edit" placeholder="Email"> -->
                     <input type="password" id="password-edit" placeholder="Password">
                     <input type="password" id="confirm-password-edit" placeholder="Confirm Password">
                     <!-- <label for="security-question">Choose a security question:</label>
