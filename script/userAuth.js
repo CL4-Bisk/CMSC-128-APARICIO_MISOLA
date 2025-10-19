@@ -20,22 +20,22 @@ const profileContainer = document.getElementById('profile-container');
 const editProfileContainer = document.getElementById('edit-profile-container');
 
 // Register inputs
-const username = document.getElementById('username-register').value;
-const name = document.getElementById('name-register').value;
-const email = document.getElementById('email-register').value;
-const password = document.getElementById('password-register').value;
-const securityQuestion = document.getElementById('security-question-register').value;
-const securityAnswer = document.getElementById('security-answer-register').value;
+// const username = document.getElementById('username-register').value;
+// const name = document.getElementById('name-register').value;
+// const email = document.getElementById('email-register').value;
+// const password = document.getElementById('password-register').value;
+// const securityQuestion = document.getElementById('security-question-register').value;
+// const securityAnswer = document.getElementById('security-answer-register').value;
 
 // Login inputs
-const emailAcc = document.getElementById('email-login').value;
-const passwordAcc = document.getElementById('password-login').value;
+// const emailAcc = document.getElementById('email-login').value;
+// const passwordAcc = document.getElementById('password-login').value;
 
 // Edit profile inputs
-const newName = document.getElementById('name-edit').value;
-const newUsername = document.getElementById('username-edit').value;
-const newPassword = document.getElementById('password-edit').value;
-const confirmNewPassword = document.getElementById('confirm-password-edit').value;
+// const newName = document.getElementById('name-edit').value;
+// const newUsername = document.getElementById('username-edit').value;
+// const newPassword = document.getElementById('password-edit').value;
+// const confirmNewPassword = document.getElementById('confirm-password-edit').value;
 let match = true;
 
 let currentUser = null;
@@ -80,6 +80,13 @@ switchToLoginBtn.addEventListener('click', e => {
 createAccBtn.addEventListener('click', async e => {
   e.preventDefault();
 
+  const username = document.getElementById('username-register').value;
+  const name = document.getElementById('name-register').value;
+  const email = document.getElementById('email-register').value;
+  const password = document.getElementById('password-register').value;
+  const securityQuestion = document.getElementById('security-question-register').value;
+  const securityAnswer = document.getElementById('security-answer-register').value;           
+
   try {
     const newUser = await signUp(email, password);
     await updateUserProfile({
@@ -104,6 +111,10 @@ createAccBtn.addEventListener('click', async e => {
 // Log in
 loginAccBtn.addEventListener('click', async e => {
   e.preventDefault();
+
+  const emailAcc = document.getElementById('email-login').value;
+  const passwordAcc = document.getElementById('password-login').value;
+
   try {
     await logIn(emailAcc, passwordAcc);
     alert(`Logged in successfully!\nUsername: ${currentUser.displayUsername}\nName: ${currentUser.displayName}\nEmail: ${emailAcc}`);
@@ -132,6 +143,11 @@ changeInfoBtn.addEventListener('click', e => {
 
 updateInfoBtn.addEventListener('click', async e => {
   e.preventDefault();
+
+  const newName = document.getElementById('name-edit').value;
+  const newUsername = document.getElementById('username-edit').value;
+  const newPassword = document.getElementById('password-edit').value;
+  const confirmNewPassword = document.getElementById('confirm-password-edit').value;
 
   if (newPassword !== confirmNewPassword) {
     alert("Passwords do not match!");
