@@ -5,7 +5,7 @@ import {
 import { 
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
   onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential,
-  EmailAuthProvider
+  EmailAuthProvider, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
 
@@ -116,5 +116,27 @@ export async function updateUserPassword(newPassword, currentPassword) { // Adde
     }
   } else {
     throw new Error("No user is currently signed in.");
+  }
+}
+
+//Change Password through Email
+export async function changePasswordEmail(userEmail) { // Added currentPassword parameter
+
+  // sendPasswordResetEmail(auth, userEmail)
+  // .then(() => {
+  //   // Password reset email sent!
+  //   // ..
+  // })
+  // .catch((error) => {
+  //   console.error("Error sending password reset email:", error.message);
+  //   throw error;
+  // });
+
+  try {
+      // const email = // your email value from input field         
+      await sendPasswordResetEmail(auth, userEmail);
+  } catch (error) {
+      console.error("Error sending password reset email:", error.message);
+      throw error;
   }
 }
