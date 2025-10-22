@@ -141,7 +141,7 @@ logOutProfileBtn.addEventListener('click', async e => {
   e.preventDefault();
 
   try {
-    userCurrentPassword = " ";
+    userCurrentPassword = "";
     await logOut();
     showMessage("Logged out successfully.", "success");
   } catch (error) {
@@ -236,6 +236,7 @@ updateProfileWithPasswordBtn.addEventListener('click', async e => {
   const newUsername = usernameInput.value.trim();
   const newPassword = passwordInput.value.trim();
   const confirmNewPassword = confirmPasswordInput.value.trim();
+  const confirmCurrentPassword = resetPasswordInput.value.trim();
 
   const userCredential = await getUserDataFromDB(currentUser.uid);
 
@@ -246,7 +247,7 @@ updateProfileWithPasswordBtn.addEventListener('click', async e => {
   
   try {
     if (newPassword) {
-      await updateUserPassword(currentPassword, newPassword);
+      await updateUserPassword(newPassword, confirmCurrentPassword);
       userCurrentPassword = newPassword;
     }
 
