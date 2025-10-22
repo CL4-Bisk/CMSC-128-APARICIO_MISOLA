@@ -1,7 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+
 import { 
-  getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc 
+  getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, getDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
 import { 
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
   onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential,
@@ -74,10 +76,12 @@ export async function logOut() {
   }
 }
 
+//check if user detected
 export function onAuthStateChangedListener(callback) {
   return onAuthStateChanged(auth, callback);
 }
 
+//only updates the user auth's profile, not the db info
 export async function updateUserProfile(updates) {
   if (auth.currentUser) {
     try {
@@ -91,6 +95,7 @@ export async function updateUserProfile(updates) {
   }
 }
 
+
 export async function saveUserDataToDB(uid, data) {
   try {
     await setDoc(doc(db, "users", uid), data);
@@ -100,6 +105,7 @@ export async function saveUserDataToDB(uid, data) {
     throw error;
   }
 }
+
 
 export async function updateUserPassword(newPassword, currentPassword) { // Added currentPassword parameter
   if (auth.currentUser) {
@@ -119,24 +125,30 @@ export async function updateUserPassword(newPassword, currentPassword) { // Adde
   }
 }
 
-//Change Password through Email
-export async function changePasswordEmail(userEmail) { // Added currentPassword parameter
 
-  // sendPasswordResetEmail(auth, userEmail)
-  // .then(() => {
-  //   // Password reset email sent!
-  //   // ..
-  // })
-  // .catch((error) => {
-  //   console.error("Error sending password reset email:", error.message);
-  //   throw error;
-  // });
-
+export async function sendPasswordReset(email) {
   try {
-      // const email = // your email value from input field         
-      await sendPasswordResetEmail(auth, userEmail);
+    await sendPasswordResetEmail(auth, email);
   } catch (error) {
-      console.error("Error sending password reset email:", error.message);
-      throw error;
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
+}
+
+
+//retrieving user data from db
+export async function getUserDataFromDB(uid) {
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      return userSnap.data(); // returns { username, name, email, ... }
+    } else {
+      console.warn("No user data found for UID:", uid);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting user data:", error);
+    throw error;
   }
 }
