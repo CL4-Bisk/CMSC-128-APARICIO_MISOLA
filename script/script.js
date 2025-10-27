@@ -9,6 +9,7 @@ const submitButton = document.getElementById('submit');
 const forms = document.getElementById('todo-form');
 let numberOfTasks = 0;
 
+
 // Show form when Add Task button is clicked
 addButton.addEventListener('click', e => {
     e.preventDefault();
