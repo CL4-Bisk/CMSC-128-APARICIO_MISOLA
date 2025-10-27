@@ -92,9 +92,7 @@ createAccBtn.addEventListener('click', async e => {
   try {
     const newUser = await signUp(email, password);
     await updateUserProfile({
-      displayName: name,
-      displayUsername: username,
-      displayEmail: email
+      displayName: name
     });
     await saveUserDataToDB(newUser.uid, {
       username,
@@ -160,17 +158,17 @@ changeInfoBtn.addEventListener('click', e => {
 
 
 // Update profile
-updateInfoBtn.addEventListener('click', async e => {
+updateInfoBtn.addEventListener('click', e => {
   e.preventDefault();
 
-  const newPassword = document.getElementById('password-edit').value;
-  const confirmNewPassword = document.getElementById('confirm-password-edit').value;
+  // const newPassword = document.getElementById('password-edit').value;
+  // const confirmNewPassword = document.getElementById('confirm-password-edit').value;
 
   resetPasswordContainer.style.display='block';
   
-  if (newPassword !== confirmNewPassword) {
-    showMessage("New passwords do not match.", "error");
-  }
+  // if (newPassword !== confirmNewPassword) {
+  //   showMessage("New passwords do not match.", "error");
+  // }
 });
 
 
@@ -257,9 +255,9 @@ updateProfileWithPasswordBtn.addEventListener('click', async e => {
     // Update Firestore (custom user data || retain current data)
     if (currentUser) {
       await saveUserDataToDB(currentUser.uid, {
-        name: newName || userCredential.name,
         username: newUsername || userCredential.username,
-        email: userCredential.email
+        name: newName || userCredential.name,
+        email: currentUser.email
       });
     }
 
