@@ -66,10 +66,6 @@ function addTaskInterface(task, dueDate, id, createdAt) {
     timeLabel.textContent = 'Added at: ' + (createdAt || new Date().toLocaleString());
     li.appendChild(timeLabel);
 
-    // const label = document.createElement('label');
-    // label.textContent = 'Mark as done';
-    // li.appendChild(label);
-
     // Edit button
     const editButton = document.createElement('button');
     editButton.textContent = 'Edit';
@@ -122,7 +118,6 @@ function addTaskInterface(task, dueDate, id, createdAt) {
             li.textContent = `Task no.${numberOfTasks}: ${task} - Due: ${new Date(dueDate).toLocaleString()}`;
             li.appendChild(timeLabel);
             li.appendChild(completeButton);
-            li.appendChild(label);
             li.appendChild(editButton);
             li.appendChild(deleteButton);
 
