@@ -1,4 +1,5 @@
-import { addTaskToDB, getTasksFromDB, updateTaskInDB, deleteTaskFromDB } from "./firebase.js";
+import { addTaskToDB, getTasksFromDB, updateTaskInDB, deleteTaskFromDB, 
+    getCurrentUser, getUserDataFromDB, onAuthStateChangedListener } from "./firebase.js";
 
 // TDL elements
 const addButton = document.getElementById('add-task-btn');
@@ -8,6 +9,28 @@ const taskList = document.getElementById('task-list');
 const submitButton = document.getElementById('submit');
 const forms = document.getElementById('todo-form');
 let numberOfTasks = 0;
+
+//await getCurrentUser(); better use this, pro wala ga work
+let currTasksUser = null
+
+onAuthStateChangedListener(async (user) => {
+    currTasksUser = user
+    if (user) {
+        // Load saved tasks from Firestore when page opens
+        await console.log(currTasksUser.uid)
+        const taskUserData = await getUserDataFromDB(currTasksUser.uid);
+
+        console.log("Triggered adding tasks elements")
+        const tasks = await getTasksFromDB(currTasksUser.uid);
+        tasks.forEach(t => {
+            addTaskInterface(t.task, t.dueDate, t.id, t.createdAt);
+        });
+
+        console.log(`may user sa TASKS \n Name: ${taskUserData.name}\n Username: ${taskUserData.username}\n Email: ${taskUserData.email}\n`);
+    } else {
+        console.log("wala user sa TASKS");
+    }
+});
 
 
 // Show form when Add Task button is clicked
@@ -26,7 +49,7 @@ submitButton.addEventListener('click', async e => {
     const createdAt = new Date().toLocaleString();
 
     // Save to Firebase
-    const id = await addTaskToDB(task, dueDate, createdAt);
+    const id = await addTaskToDB(currTasksUser.uid, task, dueDate, createdAt);
 
     addTaskInterface(task, dueDate, id, createdAt);
     forms.reset();
@@ -37,14 +60,6 @@ cancelButton.addEventListener('click', e => {
     taskForms.style.display = 'none';
     cancelButton.style.display = 'none';
     forms.reset();
-});
-
-// Load saved tasks from Firestore when page opens
-document.addEventListener("DOMContentLoaded", async () => {
-    const tasks = await getTasksFromDB();
-    tasks.forEach(t => {
-        addTaskInterface(t.task, t.dueDate, t.id, t.createdAt);
-    });
 });
 
 function addTaskInterface(task, dueDate, id, createdAt) {
@@ -110,7 +125,7 @@ function addTaskInterface(task, dueDate, id, createdAt) {
             const updatedDueDate = newDueDate.value.trim() || dueDate;
 
             // Update Firestore
-            await updateTaskInDB(id, updatedTask, updatedDueDate);
+            await updateTaskInDB(currTasksUser.uid, id, updatedTask, updatedDueDate);
 
             // Update UI
             task = updatedTask;
@@ -146,7 +161,7 @@ function addTaskInterface(task, dueDate, id, createdAt) {
         li.appendChild(confirmDelete);
 
         yesButton.addEventListener('click', async () => {
-            await deleteTaskFromDB(id); // remove from Firestore
+            await deleteTaskFromDB(currTasksUser.uid, id);
             taskList.removeChild(li);
             taskList.removeChild(completeButton);
         });
