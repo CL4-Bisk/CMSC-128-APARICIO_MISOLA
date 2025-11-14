@@ -64,6 +64,45 @@ export async function deleteTaskFromDB(uid, id) {
 // }
 
 
+// === Firestore user collab helper helper functions (yet to be implemented) ===
+export async function addCollabUserToDB(id, collabId) {
+  const docRef = await setDoc(doc(db, "tasks", collabId, "collabUsers"), { collabUserID: collabId }, { merge: true });
+  return docRef.id;
+}
+
+export async function removeCollabUserFromDB(id, collabId) {
+  await updateDoc(doc(db, "tasks", id), { collabUserID: collabId });
+}
+
+export async function getCollabTasksFromDB(collabId) {
+  const snapshot = await getDocs(collection(db, "tasks"));
+  return snapshot.docs
+    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+    .filter(task => task.collabUserID === collabId);
+}
+
+export async function addCollabTaskToDB(task, dueDate, createdAt, collabId) {
+  const docRef = await addDoc(collection(db, "tasks"), { task, dueDate, createdAt, collabUserID: collabId });
+  return docRef.id;
+}
+
+export async function deleteCollabTaskFromDB(id, collabId) {
+  const taskRef = doc(db, "tasks", id);
+  const taskSnap = await getDoc(taskRef);
+  if (taskSnap.exists() && taskSnap.data().collabUserID === collabId) {
+    await deleteDoc(taskRef);
+  }
+}
+
+export async function updateCollabTaskInDB(id, newTask, newDueDate, collabId) {
+  const taskRef = doc(db, "tasks", id);
+  const taskSnap = await getDoc(taskRef);
+  if (taskSnap.exists() && taskSnap.data().collabUserID === collabId) {
+    await updateDoc(taskRef, { task: newTask, dueDate: newDueDate });
+  }
+}
+
+
 
 // === Firestore account helper functions ===
 export async function signUp(email, password) {
