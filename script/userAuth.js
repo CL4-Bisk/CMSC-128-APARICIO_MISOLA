@@ -14,6 +14,7 @@ const logOutProfileBtn = document.getElementById('log-out-profile-btn');
 const updateInfoBtn = document.getElementById('update-info-btn');
 const backProfileBtn = document.getElementById('back-profile-btn');
 const welcomeUser = document.getElementById('welcome');
+const toDoBtn = document.getElementById('todo-btn');
 
 // Forget password modal
 const forgetPassModal = document.getElementById('forgot-password-modal');
@@ -74,6 +75,12 @@ switchToLoginBtn.addEventListener('click', e => {
   loginContainer.style.display = 'block';
 });
 
+// To Do List button navigation
+toDoBtn.addEventListener('click', e => {
+  e.preventDefault();
+  window.location.href = 'To Do List Web Application.html';
+});
+
 
 //
 //all console.log codes must be for debugging/viewing purposes only!!
@@ -125,7 +132,7 @@ loginAccBtn.addEventListener('click', async e => {
   try {
     userCurrentPassword = passwordAcc;
     const user = await logIn(emailAcc, passwordAcc); // Assign the returned user object to a variable
-    showMessage(`Logged in successfully as ${user.displayName}`, "success");
+    showMessage(`Logged in successfully as ${currentUser.displayName}`, "success");
     console.log("Logged in user:", currentUser);
   } catch (error) {
     showMessage("Error logging in: Wrong Email or Password!", "error");

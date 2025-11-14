@@ -8,6 +8,8 @@ const taskForms = document.getElementById('task-forms');
 const taskList = document.getElementById('task-list');
 const submitButton = document.getElementById('submit');
 const forms = document.getElementById('todo-form');
+
+const profileButton = document.getElementById('profile-btn');
 let numberOfTasks = 0;
 
 //await getCurrentUser(); better use this, pro wala ga work
@@ -30,6 +32,13 @@ onAuthStateChangedListener(async (user) => {
     } else {
         console.log("wala user sa TASKS");
     }
+});
+
+
+// Profile button navigation
+profileButton.addEventListener('click', e => {
+    e.preventDefault();
+    window.location.href = 'index.html';
 });
 
 
