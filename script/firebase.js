@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 
 import { 
-  getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, getDoc 
+  getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc, getDoc, query, where 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 import { 
@@ -65,40 +65,70 @@ export async function deleteTaskFromDB(uid, id) {
 
 
 // === Firestore user collab helper helper functions (yet to be implemented) ===
-export async function addCollabUserToDB(id, collabId) {
-  const docRef = await setDoc(doc(db, "tasks", collabId, "collabUsers"), { collabUserID: collabId }, { merge: true });
+export async function addCollabTaskToDB(uid, task, dueDate, createdAt) {
+  const docRef = await addDoc(collection(db, "users", uid, "collabTasks"), { task, dueDate, createdAt });
   return docRef.id;
 }
 
-export async function removeCollabUserFromDB(id, collabId) {
-  await updateDoc(doc(db, "tasks", id), { collabUserID: collabId });
+export async function getCollabTasksFromDB(uid) {
+  const snapshot = await getDocs(collection(db, "users", uid, "collabTasks"));
+  return snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
 }
 
-export async function getCollabTasksFromDB(collabId) {
-  const snapshot = await getDocs(collection(db, "tasks"));
-  return snapshot.docs
-    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
-    .filter(task => task.collabUserID === collabId);
+export async function updateCollabTaskInDB(uid, id, newTask, newDueDate) {
+  await updateDoc(doc(db, "users", uid, "collabTasks", id), { task: newTask, dueDate: newDueDate });
 }
 
-export async function addCollabTaskToDB(task, dueDate, createdAt, collabId) {
-  const docRef = await addDoc(collection(db, "tasks"), { task, dueDate, createdAt, collabUserID: collabId });
-  return docRef.id;
+export async function deleteCollabTaskFromDB(uid, id) {
+  await deleteDoc(doc(db, "users", uid, "collabTasks", id));
 }
 
-export async function deleteCollabTaskFromDB(id, collabId) {
-  const taskRef = doc(db, "tasks", id);
-  const taskSnap = await getDoc(taskRef);
-  if (taskSnap.exists() && taskSnap.data().collabUserID === collabId) {
-    await deleteDoc(taskRef);
+// === Firestore collaborator user helper functions ===
+export async function saveCollabUserToDB(uid, collabUserId) {
+  await setDoc(doc(db, "users", uid, "collaborator", "info"), { collabUserId });
+}
+
+export async function getCollabUserFromDB(uid) {
+  const docRef = doc(db, "users", uid, "collaborator", "info");
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docSnap.data();
   }
+  return null;
 }
 
-export async function updateCollabTaskInDB(id, newTask, newDueDate, collabId) {
-  const taskRef = doc(db, "tasks", id);
-  const taskSnap = await getDoc(taskRef);
-  if (taskSnap.exists() && taskSnap.data().collabUserID === collabId) {
-    await updateDoc(taskRef, { task: newTask, dueDate: newDueDate });
+export async function removeCollabUserFromDB(uid) {
+  // Delete the collaborator info
+  await deleteDoc(doc(db, "users", uid, "collaborator", "info"));
+  
+  // Delete all collab tasks
+  const collabTasks = await getDocs(collection(db, "users", uid, "collabTasks"));
+  const deletePromises = collabTasks.docs.map(docSnap => 
+    deleteDoc(doc(db, "users", uid, "collabTasks", docSnap.id))
+  );
+  await Promise.all(deletePromises);
+}
+
+export async function getUserByUsernameOrEmail(identifier) {
+  try {
+    // Check if it's an email (contains @)
+    const isEmailOrUsername = identifier.includes('@');
+    
+    const usersRef = collection(db, "users");
+    const field = isEmailOrUsername ? 'email' : 'username';
+    const q = query(usersRef, where(field, "==", identifier));
+    
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+      return null;
+    }
+    
+    const userDoc = snapshot.docs[0];
+    return { uid: userDoc.id, ...userDoc.data() };
+  } catch (error) {
+    console.error("Error finding user:", error);
+    throw error;
   }
 }
 

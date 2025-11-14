@@ -9,11 +9,11 @@
 </head>
 <body>
     <header>
-        <h1>Welcome to My Website</h1>
+        <h1 id="welcome"></h1>
     </header>
     <button id="profile-btn">Go to Profile</button>
     <div class="container">
-        <h2>To Do List</h2>
+        <h2>My To Do List</h2>
         <button id="add-task-btn">Add Task</button>
         <button id="cancel" style="display: none;">Cancel</button>
         <div id="task-forms" style="display: none;">
@@ -28,6 +28,42 @@
             <!-- Tasks will be added here dynamically -->
         </ul>
     </div>
+    <div class="container" id="collab-section">
+        <h2>Collaborative To Do List</h2>
+        
+        <!-- Collaborator User Management -->
+        <div id="collab-user-management">
+            <button id="add-collab-user-btn">Add Collaborator</button>
+            <div id="collab-user-form" style="display: none; margin-top: 10px;">
+                <input type="text" id="collab-identifier" placeholder="Enter username or email" required/>
+                <button id="submit-collab-user">Add</button>
+                <button id="cancel-collab-user">Cancel</button>
+            </div>
+            
+            <div id="collab-user-info" style="display: none; margin-top: 10px;">
+                <p id="collab-user-name"></p>
+                <button id="remove-collab-user">Remove Collaborator</button>
+            </div>
+        </div>
+
+        <!-- Collaborator Task Management -->
+        <div id="collab-task-management" style="margin-top: 20px;">
+            <button id="add-collab-task-btn">Add Collaborative Task</button>
+            <button id="cancel-collab" style="display: none;">Cancel</button>
+            <div id="task-forms-collab" style="display: none;">
+                <form id="todo-form-collab">
+                    <input type="text" id="task-input-collab" placeholder="Enter a new task" required/>
+                    <label for="due-date-collab">Due Date:</label>
+                    <input type="datetime-local" id="due-date-collab" required/>
+                    <button type="submit" id="submit-collab">Confirm</button>
+                </form>
+            </div>
+            <ul id="collab-tasks">
+                <!-- Collaborative tasks will be added here dynamically -->
+            </ul>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; To Do List Web Application</p>
     </footer>

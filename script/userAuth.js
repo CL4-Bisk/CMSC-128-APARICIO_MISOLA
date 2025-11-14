@@ -120,24 +120,33 @@ createAccBtn.addEventListener('click', async e => {
 loginAccBtn.addEventListener('click', async e => {
   e.preventDefault();
 
-  const emailAcc = document.getElementById('email-login').value;
-  const passwordAcc = document.getElementById('password-login').value;
+  const emailAcc = document.getElementById('email-login');
+  const passwordAcc = document.getElementById('password-login');
 
-  if (emailAcc == "" || passwordAcc == "") {
+  const email = emailAcc.value.trim();
+  const password = passwordAcc.value.trim();
+
+  if (email == "" || password == "") {
     showMessage("Please enter both email and password.", "error");
     console.log("wala pass or email");
     return;
   }
 
   try {
-    userCurrentPassword = passwordAcc;
-    const user = await logIn(emailAcc, passwordAcc); // Assign the returned user object to a variable
-    showMessage(`Logged in successfully as ${currentUser.displayName}`, "success");
-    console.log("Logged in user:", currentUser);
+    userCurrentPassword = password;
+    await logIn(email, password); // Assign the returned user object to a variable
+
+    const userCredential = await getUserDataFromDB(currentUser.uid);
+
+    showMessage(`Logged in successfully as ${userCredential.name}`, "success");
+    console.log("Logged in user:", userCredential, "\n", currentUser);
   } catch (error) {
     showMessage("Error logging in: Wrong Email or Password!", "error");
     console.error("Login error details:", error);
   }
+
+  emailAcc.value= "";
+  passwordAcc.value = "";
 });
 
 
