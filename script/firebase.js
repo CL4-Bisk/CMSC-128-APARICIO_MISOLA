@@ -26,8 +26,8 @@ export function getCurrentUser() {
 
 
 // === Firestore task helper functions ===
-export async function addTaskToDB(uid, task, dueDate, createdAt) {
-  const docRef = await addDoc(collection(db, "users", uid, "tasks"), { task, dueDate, createdAt });
+export async function addTaskToDB(uid, task, dueDate, createdAt, checkedState) {
+  const docRef = await addDoc(collection(db, "users", uid, "tasks"), { task, dueDate, createdAt, checkedState});
   return docRef.id;
 }
 
@@ -36,8 +36,8 @@ export async function getTasksFromDB(uid) {
   return snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
 }
 
-export async function updateTaskInDB(uid, id, newTask, newDueDate) {
-  await updateDoc(doc(db, "users", uid, "tasks", id), { task: newTask, dueDate: newDueDate });
+export async function updateTaskInDB(uid, id, newTask, newDueDate, newCheckedState) {
+  await updateDoc(doc(db, "users", uid, "tasks", id), { task: newTask, dueDate: newDueDate, checkedState: newCheckedState });
 }
 
 export async function deleteTaskFromDB(uid, id) {
