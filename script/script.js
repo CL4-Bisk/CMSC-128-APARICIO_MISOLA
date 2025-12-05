@@ -44,7 +44,7 @@ onAuthStateChangedListener(async (user) => {
         console.log("Loading personal tasks");
         const tasks = await getTasksFromDB(currTasksUser.uid);
         tasks.forEach(t => {
-            addTaskInterface(t.task, t.dueDate, t.id, t.createdAt);
+            addTaskInterface(t.task, t.dueDate, t.id, t.createdAt, t.checkedState);
         });
 
         // Load collaborator user if exists
@@ -101,11 +101,12 @@ submitButton.addEventListener('click', async e => {
     const task = document.getElementById('task-input').value || "Unnamed Task";
     const dueDate = document.getElementById('due-date').value || new Date().toISOString().slice(0,16);
     const createdAt = new Date().toLocaleString();
+    const checkedState = false;
 
     // Save to Firebase
-    const id = await addTaskToDB(currTasksUser.uid, task, dueDate, createdAt);
+    const id = await addTaskToDB(currTasksUser.uid, task, dueDate, createdAt, checkedState);
 
-    addTaskInterface(task, dueDate, id, createdAt);
+    addTaskInterface(task, dueDate, id, createdAt, checkedState);
     forms.reset();
 });
 
@@ -224,7 +225,7 @@ function displayCollabUser(userData) {
 }
 
 
-function addTaskInterface(task, dueDate, id, createdAt) {
+function addTaskInterface(task, dueDate, id, createdAt, checkedState) {
     numberOfTasks = taskList.getElementsByTagName('li').length + 1;
 
     const li = document.createElement('li');
@@ -232,9 +233,11 @@ function addTaskInterface(task, dueDate, id, createdAt) {
     const completeButton = document.createElement('input');
     completeButton.type = 'checkbox';
     completeButton.style.marginRight = '10px';
+    completeButton.checked = checkedState;
     
     const taskText = document.createElement('span');
     taskText.textContent = `Task ${numberOfTasks}: ${task} - Due: ${new Date(dueDate).toLocaleString()}`;
+    taskText.style.textDecoration = checkedState? 'line-through' : 'none';
     
     li.appendChild(completeButton);
     li.appendChild(taskText);
@@ -257,8 +260,10 @@ function addTaskInterface(task, dueDate, id, createdAt) {
 
     taskList.appendChild(li);
 
-    completeButton.addEventListener('change', () => {
-        taskText.style.textDecoration = completeButton.checked ? 'line-through' : 'none';
+    completeButton.addEventListener('change', async () => {
+        taskText.style.textDecoration = completeButton.checked? 'line-through' : 'none';
+        checkedState = completeButton.checked;
+        await updateTaskInDB(currTasksUser.uid, id, task, dueDate, checkedState);
     });
 
     editButton.addEventListener('click', () => {
@@ -291,7 +296,7 @@ function addTaskInterface(task, dueDate, id, createdAt) {
             const updatedTask = newTask.value.trim() || task;
             const updatedDueDate = newDueDate.value.trim() || dueDate;
 
-            await updateTaskInDB(currTasksUser.uid, id, updatedTask, updatedDueDate);
+            await updateTaskInDB(currTasksUser.uid, id, updatedTask, updatedDueDate, checkedState);
 
             task = updatedTask;
             dueDate = updatedDueDate;
