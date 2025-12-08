@@ -1,7 +1,8 @@
 import { addTaskToDB, getTasksFromDB, updateTaskInDB, deleteTaskFromDB,
     addCollabTaskToDB, deleteCollabTaskFromDB, updateCollabTaskInDB, getCollabTasksFromDB,
     getUserDataFromDB, onAuthStateChangedListener, getUserByUsernameOrEmail, 
-    saveCollabUserToDB, getCollabUserFromDB, removeCollabUserFromDB } from "./firebase.js";
+    saveCollabUserToDB, getCollabUserFromDB, removeCollabUserFromDB, addReceiverCollabUserToDB,
+    getReceiverCollabUsersFromDB } from "./firebase.js";
 
 // TDL elements
 const addUserTaskButton = document.getElementById('add-task-btn');
@@ -32,12 +33,12 @@ let numberOfTasks = 0;
 let numberOfCollabTasks = 0;
 
 let currTasksUser = null;
-let currCollabUserId = null;
+let currCollabUserId = null; // Changed from array to single value
+let currCollabUser = null;   // Changed from array to single value
 
 onAuthStateChangedListener(async (user) => {
     currTasksUser = user;
     if (user) {
-        await console.log(currTasksUser.uid);
         const taskUserData = await getUserDataFromDB(currTasksUser.uid);
 
         // Load personal tasks
@@ -48,12 +49,13 @@ onAuthStateChangedListener(async (user) => {
         });
 
         // Load collaborator user if exists
-        const collabUser = await getCollabUserFromDB(currTasksUser.uid);
-        if (collabUser) {
-            currCollabUserId = collabUser.collabUserId;
-            const collabUserData = await getUserDataFromDB(currCollabUserId);
+        const collabUserData = await getCollabUserFromDB(currTasksUser.uid);
+        if (collabUserData) {
+            currCollabUserId = collabUserData.UID;
+            const fullCollabData = await getUserDataFromDB(collabUserData.UID);
+            currCollabUser = fullCollabData;
             displayCollabUser(collabUserData);
-
+            
             // Load collab tasks
             console.log("Loading collab tasks");
             const collabTasks = await getCollabTasksFromDB(currTasksUser.uid);
@@ -63,7 +65,30 @@ onAuthStateChangedListener(async (user) => {
         }
 
         document.getElementById('welcome').textContent = `Welcome, ${taskUserData.name}!`;
-        console.log(`User logged in -\nName: ${taskUserData.name}\nUsername: ${taskUserData.username}\nEmail: ${taskUserData.email}`);
+        console.log(`User logged in -\nName: ${taskUserData.name}\nUsername: ${taskUserData.username}\nEmail: ${taskUserData.email}\nUID: ${currTasksUser.uid}`);
+
+        // Load receiver collab users (people who added this user as collaborator)
+        const collabFromUsers = await getReceiverCollabUsersFromDB(currTasksUser.uid);
+        if (collabFromUsers.length > 0) {
+            console.log("Users who added you as collaborator:");
+            for (const c of collabFromUsers) {
+                console.log(`- Name: ${c.collabName}\nUsername: ${c.collabUsername}\nEmail: ${c.collabEmail}\nUID: ${c.collabUID}`);
+                
+                // Load collab tasks from each user who added you
+                const collabTasks = await getCollabTasksFromDB(c.collabUID);
+                const div = document.createElement('div');
+                div.innerHTML = `<h3>${c.collabName}'s Collab Tasks</h3>`;
+                taskListCollab.appendChild(div);
+                collabTasks.forEach(t => {
+                    addCollabTaskInterface(t.task, t.dueDate, t.id, t.createdAt);
+                });
+            }
+        }
+
+
+        if (currCollabUser) {
+            console.log(`Collaborator user -\nName: ${currCollabUser.name}\nUsername: ${currCollabUser.username}\nEmail: ${currCollabUser.email}\nUID: ${currCollabUser.uid}`);
+        }
     } else {
         console.log("No user logged in");
     }
@@ -86,7 +111,7 @@ addUserTaskButton.addEventListener('click', e => {
 
 addCollabTaskButton.addEventListener('click', e => {
     e.preventDefault();
-    if (!currCollabUserId) {
+    if (!currCollabUserId) {  // Now correctly checks if null
         alert('Please add a collaborator first!');
         return;
     }
@@ -107,6 +132,10 @@ submitButton.addEventListener('click', async e => {
 
     addTaskInterface(task, dueDate, id, createdAt);
     forms.reset();
+    
+    // Hide form after submission
+    taskForms.style.display = 'none';
+    cancelButton.style.display = 'none';
 });
 
 cancelButton.addEventListener('click', e => {
@@ -124,13 +153,18 @@ submitButtonCollab.addEventListener('click', async e => {
     const dueDate = document.getElementById('due-date-collab').value || new Date().toISOString().slice(0,16);
     const createdAt = new Date().toLocaleString();
 
-    // Save to Firebase
+    // Save to Firebase for both users
     const id = await addCollabTaskToDB(currTasksUser.uid, task, dueDate, createdAt);
+    
+    // Use setDoc with the same ID for the collaborator
     await addCollabTaskToDB(currCollabUserId, task, dueDate, createdAt);
-
 
     addCollabTaskInterface(task, dueDate, id, createdAt);
     formsCollab.reset();
+    
+    // Hide form after submission
+    taskFormsCollab.style.display = 'none';
+    cancelButtonCollab.style.display = 'none';
 });
 
 cancelButtonCollab.addEventListener('click', e => {
@@ -144,7 +178,7 @@ cancelButtonCollab.addEventListener('click', e => {
 // Add collaborator user
 addCollabUserButton.addEventListener('click', e => {
     e.preventDefault();
-    if (currCollabUserId) {
+    if (currCollabUserId) {  // Now correctly checks if not null
         alert('You already have a collaborator. Remove them first to add a new one.');
         return;
     }
@@ -181,9 +215,27 @@ submitCollabUser.addEventListener('click', async e => {
             return;
         }
 
-        await saveCollabUserToDB(currTasksUser.uid, collabUserData.uid);
-        await saveCollabUserToDB(collabUserData.uid, currTasksUser.uid); // Mutual collaboration
+        // Save to current user's collaborator info
+        await saveCollabUserToDB(currTasksUser.uid, {
+            UID: collabUserData.uid,
+            username: collabUserData.username,
+            name: collabUserData.name,
+            email: collabUserData.email
+        });
+
+        // Save to collaborator's "collabFrom" collection
+        const userCredential = await getUserDataFromDB(currTasksUser.uid);
+        await addReceiverCollabUserToDB(
+            collabUserData.uid, 
+            currTasksUser.uid, 
+            userCredential.email, 
+            userCredential.name, 
+            userCredential.username
+        );
+
+        // Update current state
         currCollabUserId = collabUserData.uid;
+        currCollabUser = collabUserData;
         
         displayCollabUser(collabUserData);
         collabUserForm.style.display = 'none';
@@ -206,10 +258,16 @@ removeCollabUserBtn.addEventListener('click', async e => {
 
     try {
         await removeCollabUserFromDB(currTasksUser.uid);
+        
+        // Also remove from the collaborator's "collabFrom" collection
+        // You'll need to implement this in firebase.js if you want bidirectional cleanup
+        
         currCollabUserId = null;
+        currCollabUser = null;
         collabUserInfo.style.display = 'none';
         taskListCollab.innerHTML = '';
         numberOfCollabTasks = 0;
+        
         alert('Collaborator removed successfully!');
     } catch (error) {
         console.error('Error removing collaborator:', error);
@@ -234,7 +292,7 @@ function addTaskInterface(task, dueDate, id, createdAt) {
     completeButton.style.marginRight = '10px';
     
     const taskText = document.createElement('span');
-    taskText.textContent = `Task ${numberOfTasks}: ${task} - Due: ${new Date(dueDate).toLocaleString()}`;
+    taskText.textContent = `${task} - Due: ${new Date(dueDate).toLocaleString()}`;
     
     li.appendChild(completeButton);
     li.appendChild(taskText);
@@ -295,7 +353,7 @@ function addTaskInterface(task, dueDate, id, createdAt) {
 
             task = updatedTask;
             dueDate = updatedDueDate;
-            taskText.textContent = `Task ${numberOfTasks}: ${task} - Due: ${new Date(dueDate).toLocaleString()}`;
+            taskText.textContent = `${task} - Due: ${new Date(dueDate).toLocaleString()}`;
 
             newTask.remove();
             newDueDate.remove();
@@ -323,17 +381,20 @@ function addTaskInterface(task, dueDate, id, createdAt) {
     });
 }
 
-function addCollabTaskInterface(task, dueDate, id, createdAt) {
+function addCollabTaskInterface(task, dueDate, id, createdAt, collabName, collabUID) {
     numberOfCollabTasks = taskListCollab.getElementsByTagName('li').length + 1;
 
     const li = document.createElement('li');
+    li.style.marginBottom = '10px';
+    li.style.borderLeft = '3px solid #4CAF50';
+    li.style.paddingLeft = '10px';
     
     const completeButton = document.createElement('input');
     completeButton.type = 'checkbox';
     completeButton.style.marginRight = '10px';
     
     const taskText = document.createElement('span');
-    taskText.textContent = `Task ${numberOfCollabTasks}: ${task} - Due: ${new Date(dueDate).toLocaleString()}`;
+    taskText.textContent = `${task} - Due: ${new Date(dueDate).toLocaleString()}`;
     
     li.appendChild(completeButton);
     li.appendChild(taskText);
@@ -390,11 +451,15 @@ function addCollabTaskInterface(task, dueDate, id, createdAt) {
             const updatedTask = newTask.value.trim() || task;
             const updatedDueDate = newDueDate.value.trim() || dueDate;
 
+            // Update for both users
             await updateCollabTaskInDB(currTasksUser.uid, id, updatedTask, updatedDueDate);
+            if (collabUID) {
+                await updateCollabTaskInDB(collabUID, id, updatedTask, updatedDueDate);
+            }
 
             task = updatedTask;
             dueDate = updatedDueDate;
-            taskText.textContent = `Task ${numberOfCollabTasks}: ${task} - Due: ${new Date(dueDate).toLocaleString()}`;
+            taskText.textContent = `${task} - Due: ${new Date(dueDate).toLocaleString()}`;
 
             newTask.remove();
             newDueDate.remove();
@@ -417,6 +482,9 @@ function addCollabTaskInterface(task, dueDate, id, createdAt) {
     deleteButton.addEventListener('click', () => {
         if (confirm('Are you sure you want to delete this task?')) {
             deleteCollabTaskFromDB(currTasksUser.uid, id);
+            if (collabUID) {
+                deleteCollabTaskFromDB(collabUID, id);
+            }
             taskListCollab.removeChild(li);
         }
     });
