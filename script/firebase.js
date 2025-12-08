@@ -27,7 +27,7 @@ export function getCurrentUser() {
 
 // === Firestore task helper functions ===
 export async function addTaskToDB(uid, task, dueDate, createdAt, checkedState) {
-  const docRef = await addDoc(collection(db, "users", uid, "tasks"), { task, dueDate, createdAt, checkedState});
+  const docRef = await addDoc(collection(db, "users", uid, "tasks"), { task, dueDate, createdAt, checkedState });
   return docRef.id;
 }
 
@@ -65,8 +65,8 @@ export async function deleteTaskFromDB(uid, id) {
 
 
 // === Firestore user collab helper helper functions (yet to be implemented) ===
-export async function addCollabTaskToDB(uid, task, dueDate, createdAt) {
-  const docRef = await addDoc(collection(db, "users", uid, "collabTasks"), { task, dueDate, createdAt });
+export async function addCollabTaskToDB(uid, task, dueDate, createdAt, checkedState) {
+  const docRef = await addDoc(collection(db, "users", uid, "collabTasks"), { task, dueDate, createdAt, checkedState });
   return docRef.id;
 }
 
@@ -75,8 +75,8 @@ export async function getCollabTasksFromDB(uid) {
   return snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
 }
 
-export async function updateCollabTaskInDB(uid, id, newTask, newDueDate) {
-  await updateDoc(doc(db, "users", uid, "collabTasks", id), { task: newTask, dueDate: newDueDate });
+export async function updateCollabTaskInDB(uid, id, newTask, newDueDate, newCheckedState) {
+  await updateDoc(doc(db, "users", uid, "collabTasks", id), { task: newTask, dueDate: newDueDate, checkedState: newCheckedState });
 }
 
 export async function deleteCollabTaskFromDB(uid, id) {
@@ -84,8 +84,24 @@ export async function deleteCollabTaskFromDB(uid, id) {
 }
 
 // === Firestore collaborator user helper functions ===
-export async function saveCollabUserToDB(uid, collabUserId) {
-  await setDoc(doc(db, "users", uid, "collaborator", "info"), { collabUserId });
+export async function saveCollabUserToDB(uid, data) {
+  try{
+    await setDoc(doc(db, "users", uid, "collaborator", "info"), data);
+    return { uid, ...data };
+  } catch (error) {
+    console.error("Error saving user data:", error);
+    throw error;
+  }
+}
+
+export async function addReceiverCollabUserToDB(uid, collabUID, collabEmail, collabName, collabUsername) {
+  try{
+    const docRef = await addDoc(collection(db, "users", uid, "collabFrom"), { collabUID, collabName, collabEmail, collabUsername });
+    return docRef.id;
+  } catch (error) {
+    console.error("Error saving user data:", error);
+    throw error;
+  }
 }
 
 export async function getCollabUserFromDB(uid) {
@@ -95,6 +111,16 @@ export async function getCollabUserFromDB(uid) {
     return docSnap.data();
   }
   return null;
+}
+
+export async function deleteReceiverCollabUserFromDB(uid, collabDocID) {
+  await deleteDoc(doc(db, "users", uid, "collabFrom", collabDocID));
+}
+
+export async function getReceiverCollabUsersFromDB(uid) {
+  const docRef = collection(db, "users", uid, "collabFrom");
+  const docSnap = await getDocs(docRef);
+  return docSnap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
 }
 
 export async function removeCollabUserFromDB(uid) {
@@ -150,8 +176,13 @@ export async function logIn(email, password) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
-    console.error("Error logging in:", error);
-    throw error;
+    if (error.code === "auth/invalid-credential") {
+      console.error("Incorrect password. Please try again.");
+    } 
+    if (error.code === "auth/invalid-email") {
+      console.error("User not found. Please sign up.");
+    }
+    return;
   }
 }
 

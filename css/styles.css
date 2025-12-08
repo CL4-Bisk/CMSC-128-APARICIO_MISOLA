@@ -1,45 +1,230 @@
+/* =========================
+   Global / Base Styles
+========================= */
 * {
-    background-color: white;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #5c6bc0, #7986cb);
+  color: #333;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#task-list{
-    list-style-type: none;
-    padding: 0;
+/* =========================
+   Layout Containers
+========================= */
+header {
+  margin-top: 40px; /* increased spacing */
+  text-align: center;
+}
+
+.container {
+  background: #fff;
+  width: 1000px;
+  max-width: 95%;
+  margin: 25px auto;
+  padding: 30px 35px;
+  border-radius: 18px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transition: 0.3s ease;
+}
+
+#collab-section {
+  margin-top: 20px;
+}
+
+/* =========================
+   Typography
+========================= */
+h1, h2, h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+
+p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+/* =========================
+   Forms & Inputs
+========================= */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* increased spacing */
+}
+
+input[type="text"],
+input[type="datetime-local"] {
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: 0.2s ease;
+  width: 35%;
+}
+
+.inline-collab-form{
+    display: flex;
+}
+
+
+
+input:focus {
+  border-color: #5c6bc0;
+  outline: none;
+  box-shadow: 0 0 6px rgba(92, 107, 192, 0.3);
+}
+
+label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Inline forms for collab tasks */
+.inline-collab-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px; /* space between input and button */
+  margin-bottom: 12px;
+}
+
+/* =========================
+   Buttons
+========================= */
+button {
+  background: #384171;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: #3f51b5;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+#profile-btn {
+  margin-top: 12px;
+}
+
+#cancel,
+#cancel-collab,
+#cancel-collab-user {
+  background: #bbb;
+  color: #333;
+}
+
+#cancel:hover,
+#cancel-collab:hover,
+#cancel-collab-user:hover {
+  background: #999;
+}
+
+/* =========================
+   Task Lists
+========================= */
+#task-list,
+#collab-tasks {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
 }
 
 li {
-    background: #fff;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    display: flex;
+  background: #f9f9f9;
+  margin: 15px 0;
+  padding: 16px 20px;
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Collab task styling */
+#collab-tasks li {
+  border-left: 5px solid #4caf50;
+  padding-left: 16px;
+  margin-bottom: 15px;
+}
+
+/* =========================
+   Special UI Messages
+========================= */
+#collab-target-label {
+  display: none;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+/* =========================
+   Collab User Info Box
+========================= */
+#collab-user-info {
+  background: #f2f2f2;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-top: 14px;
+  justify-items: left;
+}
+
+/* #collab-user-management {
+    display: inline-flex;
+    justify-items: center;
     align-items: center;
-    justify-content: space-between;
+    gap: 10px;
+} */
+
+/* =========================
+   Footer
+========================= */
+footer {
+  margin: 35px 0 25px;
+  font-size: 14px;
+  color: #eee;
 }
 
-button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    cursor: pointer;
-}   
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 520px) {
+  .container {
+    width: 95%;
+    padding: 25px 20px;
+  }
 
-button:hover {
-    opacity: 0.8;
-}
+  .inline-collab-form {
+    flex-direction: column;
+    gap: 10px;
+  }
 
-#task-input, #due-date-input {
-    padding: 5px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+  li {
+    padding: 14px 16px;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+  }
 }

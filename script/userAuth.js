@@ -128,7 +128,6 @@ loginAccBtn.addEventListener('click', async e => {
 
   if (email == "" || password == "") {
     showMessage("Please enter both email and password.", "error");
-    console.log("wala pass or email");
     return;
   }
 
@@ -139,10 +138,8 @@ loginAccBtn.addEventListener('click', async e => {
     const userCredential = await getUserDataFromDB(currentUser.uid);
 
     showMessage(`Logged in successfully as ${userCredential.name}`, "success");
-    console.log("Logged in user:", userCredential, "\n", currentUser);
   } catch (error) {
     showMessage("Error logging in: Wrong Email or Password!", "error");
-    console.error("Login error details:", error);
   }
 
   emailAcc.value= "";
@@ -160,7 +157,6 @@ logOutProfileBtn.addEventListener('click', async e => {
     showMessage("Logged out successfully.", "success");
   } catch (error) {
     showMessage("Error logging out.", "error");
-    console.log(error.message);
   }
 });
 
@@ -294,8 +290,7 @@ updateProfileWithPasswordBtn.addEventListener('click', async e => {
     resetPasswordInput.value = "";
 
   } catch (error) {
-    showMessage("Error updating profile: " + error.message, "error");
-    console.log(error.message);
+    showMessage("Error updating profile.", "error");
   }
 });
 
