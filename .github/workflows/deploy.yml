@@ -3,47 +3,32 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # or your default branch
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout your repo
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # 2. Set up Node.js (if you have a build step)
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: "20"
+      # 1. Generate firebaseConfig.json from secrets
+      - name: Generate Firebase Config
+        run: |
+          mkdir -p script
+          echo '{
+            "apiKey": "${{ secrets.FIREBASE_API_KEY }}",
+            "authDomain": "${{ secrets.FIREBASE_AUTH_DOMAIN }}",
+            "projectId": "${{ secrets.FIREBASE_PROJECT_ID }}",
+            "storageBucket": "${{ secrets.FIREBASE_STORAGE_BUCKET }}",
+            "messagingSenderId": "${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}",
+            "appId": "${{ secrets.FIREBASE_APP_ID }}"
+          }' > script/firebaseConfig.json
 
-    # 3. Install dependencies (if you have package.json)
-    - name: Install dependencies
-      run: npm install
-
-    # 4. Generate firebaseConfig.json in the public folder
-    - name: Generate firebaseConfig.json
-      run: |
-        mkdir -p public/script
-        echo '{
-          "apiKey": "${{ secrets.FIREBASE_API_KEY }}",
-          "authDomain": "${{ secrets.FIREBASE_AUTH_DOMAIN }}",
-          "projectId": "${{ secrets.FIREBASE_PROJECT_ID }}",
-          "storageBucket": "${{ secrets.FIREBASE_STORAGE_BUCKET }}",
-          "messagingSenderId": "${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}",
-          "appId": "${{ secrets.FIREBASE_APP_ID }}"
-        }' > CMSC-128-APARICIO_MISOLA/script/firebaseConfig.json
-
-    # 5. Build step (if using build tool)
-    - name: Build project
-      run: npm run build || echo "No build step"
-
-    # 6. Deploy to GitHub Pages
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./CMSC-128-APARICIO_MISOLA
+      # 2. Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./   # adjust if index.html is in ./public
