@@ -10,7 +10,7 @@ import {
   EmailAuthProvider, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
-import firebaseConfig from './script/firebaseConfig.json';
+import {firebaseConfig} from './script/firebaseConfig.js';
 
 
 // Initialize Firebase
