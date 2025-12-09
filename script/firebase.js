@@ -12,7 +12,7 @@ import {
 
 
 // Firebase configuration
-const response = await fetch('./script/firebaseConfig.json');
+const response = await fetch('firebaseConfig.json');
 const firebaseConfig = await response.json();
 
 
