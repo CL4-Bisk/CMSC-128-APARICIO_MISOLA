@@ -31,4 +31,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: /CMSC-128-APARICIO_MISOLA   # adjust if index.html is in ./public
+          publish_dir: ./   # adjust if index.html is in ./public
