@@ -13,11 +13,6 @@ import {
 import { firebaseConfig } from './script/firebaseConfig.js';
 
 
-// Firebase configuration
-const response = await fetch(firebaseConfig);
-const firebaseConfig = await response.json();
-
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
