@@ -10,9 +10,11 @@ import {
   EmailAuthProvider, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
+import { firebaseConfig } from './script/firebaseConfig.js';
+
 
 // Firebase configuration
-const response = await fetch('./script/firebaseConfig.json');
+const response = await fetch(firebaseConfig);
 const firebaseConfig = await response.json();
 
 
