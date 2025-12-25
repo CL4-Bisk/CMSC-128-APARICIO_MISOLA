@@ -48,15 +48,9 @@ onAuthStateChangedListener(async (user) => {
     accountAuthContainer.style.display = 'none';
     displayUserProfile(user);
 
-    
-    console.log(`may user\n Name: ${userCredential.name}\n Username: ${userCredential.username}\n Email: ${user.email}\n Password: ${userCurrentPassword}`);
-
-
   } else {
     accProfileContainer.style.display = 'none';
     accountAuthContainer.style.display = 'block';
-
-    console.log("wala user");
   }
 });
 

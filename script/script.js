@@ -52,7 +52,6 @@ onAuthStateChangedListener(async (user) => {
         const taskUserData = await getUserDataFromDB(currTasksUser.uid);
 
         // Load personal tasks
-        console.log("Loading personal tasks");
         const tasks = await getTasksFromDB(currTasksUser.uid);
         tasks.forEach(t => {
             addTaskInterface(t.task, t.dueDate, t.id, t.createdAt, t.checkedState || false);
@@ -67,7 +66,6 @@ onAuthStateChangedListener(async (user) => {
             displayCollabUser(collabUserData);
             
             // Load collab tasks
-            console.log("Loading collab tasks");
             const collabTasks = await getCollabTasksFromDB(currTasksUser.uid);
             if (collabTasks) {
                 const div = document.createElement('div');
@@ -102,14 +100,11 @@ onAuthStateChangedListener(async (user) => {
         }
 
         document.getElementById('welcome').textContent = `Welcome, ${taskUserData.name}!`;
-        console.log(`User logged in -\nName: ${taskUserData.name}\nUsername: ${taskUserData.username}\nEmail: ${taskUserData.email}\nUID: ${currTasksUser.uid}`);
 
         // Load receiver collab users (people who added this user as collaborator)
         const collabFromUsers = await getReceiverCollabUsersFromDB(currTasksUser.uid);
-        console.log("Users who added you as collaborator:");
         if (collabFromUsers.length > 0) {            
             for (const c of collabFromUsers) {
-                console.log(`- Name: ${c.collabName}\nUsername: ${c.collabUsername}\nEmail: ${c.collabEmail}\nUID: ${c.collabUID}`);
                 
                 // Load collab tasks from each user who added you
                 const collabTasks = await getCollabTasksFromDB(c.collabUID);
@@ -144,16 +139,7 @@ onAuthStateChangedListener(async (user) => {
                     taskListCollab.appendChild(noTaskMsg);
                 }
             }
-        } else {
-            console.log(" - No users have added you as collaborator.");
         }
-
-
-        if (currCollabUser) {
-            console.log(`Added Collaborator -\nName: ${currCollabUser.name}\nUsername: ${currCollabUser.username}\nEmail: ${currCollabUser.email}\nUID: ${currCollabUserId}`);
-        }
-    } else {
-        console.log("No user logged in");
     }
 
     document.addEventListener('click', async (e) => {
