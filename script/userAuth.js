@@ -72,7 +72,7 @@ switchToLoginBtn.addEventListener('click', e => {
 // To Do List button navigation
 toDoBtn.addEventListener('click', e => {
   e.preventDefault();
-  window.location.href = 'To Do List Web Application.html';
+  window.location.href = "../To Do List Web Application.html";
 });
 
 

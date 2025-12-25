@@ -179,7 +179,7 @@ onAuthStateChangedListener(async (user) => {
 // Profile button navigation
 profileButton.addEventListener('click', e => {
     e.preventDefault();
-    window.location.href = 'index.html';
+    window.location.href = "../index.html";
 });
 
 
